@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() , SearchView.OnQueryTextListener {
     private lateinit var wordList : ArrayList<Word>
     private lateinit var adapter : MyAdapter
 
+    private lateinit var db : DatabaseHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         main = ActivityMainBinding.inflate(layoutInflater)
@@ -26,15 +28,9 @@ class MainActivity : AppCompatActivity() , SearchView.OnQueryTextListener {
         main.recyclerView.setHasFixedSize(true)
         main.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        wordList = ArrayList()
-
-        val w1 = Word(1, "suspend", "askiya almak")
-        val w2 = Word(2, "asset", "varlik - mal")
-        val w3 = Word(3, "deploy", "dagitim - yaymak")
-
-        wordList.add(w1)
-        wordList.add(w2)
-        wordList.add(w3)
+        copyDatabase()
+        db = DatabaseHelper(this)
+        wordList = WordDao().getAllWords(db)
 
         adapter = MyAdapter(this, wordList)
 
@@ -52,15 +48,34 @@ class MainActivity : AppCompatActivity() , SearchView.OnQueryTextListener {
         return super.onCreateOptionsMenu(menu)
     }
 
-    // on each pressed submit
-    override fun onQueryTextSubmit(query: String?): Boolean {
+    // on each time pressed submit
+    override fun onQueryTextSubmit(query: String): Boolean {
+        search(query)
         Log.e("submit", query.toString())
         return true
     }
 
-    // on each text change
-    override fun onQueryTextChange(newText: String?): Boolean {
+    // on each time text changed
+    override fun onQueryTextChange(newText: String): Boolean {
+        search(newText)
         Log.e("change", newText.toString())
         return true
+    }
+
+    private fun copyDatabase(){
+        // object from database copy helper class
+        val dbCopyHelper = DatabaseCopyHelper(this)
+        try {
+            dbCopyHelper.createDataBase()
+            dbCopyHelper.openDataBase()
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+    }
+
+    private fun search(wordEng : String){
+        wordList = WordDao().searchWord(db, wordEng)
+        adapter = MyAdapter(this, wordList)
+        main.recyclerView.adapter = adapter
     }
 }

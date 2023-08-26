@@ -9,9 +9,12 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
+
 class MyAdapter(private val context: Context, private val wordList: List<Word>) :
     RecyclerView.Adapter<MyAdapter.CardViewHolder>()
 {
+
+
 
     inner class CardViewHolder(design: View) : RecyclerView.ViewHolder(design) {
 
